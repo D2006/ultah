@@ -5,182 +5,162 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Happy Birthday Nia Oliffia Annanta</title>
     <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body { background-color:#080004; overflow:hidden; font-family:'Lucida Handwriting', 'Segoe Script', 'Brush Script MT', cursive; }
-        .canvas-container { position:absolute; top:0; left:0; width:100%; height:100%; z-index:-1; background:#080004; }
-        canvas { display:block; width:100%; height:100%; }
-        .content { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:1; color:#ffffff; text-align:center; width:90%; max-width:600px; pointer-events:none; }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{background-color:#080004;overflow:hidden;font-family:'Lucida Handwriting','Segoe Script','Brush Script MT',cursive}
         
-        .content h1 {
-            font-family:'Lucida Handwriting', 'Segoe Script', 'Brush Script MT', cursive;
-            font-size:3rem; font-weight:900; color:#ffffff;
-            text-shadow:0 0 15px #ff1493, 0 0 30px #ff007f, 0 0 45px #ff1493;
-            letter-spacing:6px; opacity:0; transform:translate(-50%,-50%) scale(0.3); 
-            position:absolute; top:50%; left:50%; width:100%; white-space:nowrap; display:none;
+        /* Layar Pembuka mencegah kelap-kelip */
+        .welcome-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #080004; z-index: 999; display: flex;
+            flex-direction: column; justify-content: center; align-items: center;
+            color: #fff; transition: opacity 0.5s ease;
         }
-        .content h1.active {
-            display:block; animation:zoomInEffect 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        .start-btn {
+            padding: 15px 35px; font-size: 1.2rem; background: transparent;
+            color: #ff1493; border: 2px solid #ff1493; border-radius: 25px;
+            cursor: pointer; font-family: inherit;
+            box-shadow: 0 0 15px rgba(255, 20, 147, 0.4);
+            transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 2px;
         }
-        @keyframes zoomInEffect {
-            0% { opacity:0; transform:translate(-50%,-50%) scale(0.3); }
-            100% { opacity:1; transform:translate(-50%,-50%) scale(1); }
+        .start-btn:hover {
+            background: #ff1493; color: #fff;
+            box-shadow: 0 0 25px #ff1493, 0 0 50px #ff007f;
         }
-        @media (max-width:480px) { .content h1 { font-size:1.8rem; letter-spacing:3px; white-space:normal; } }
+
+        /* Kontainer Utama di Tengah Sempurna */
+        .canvas-container{position:absolute;top:0;left:0;width:100%;height:100%;z-index:-1;background:#080004}
+        canvas{display:block;width:100%;height:100%}
+        
+        .content{
+            position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); 
+            z-index:1; color:#fff; text-align:center; width:90%; max-width:600px; 
+            pointer-events:none; display: flex; justify-content: center; align-items: center;
+            height: 200px;
+        }
+        
+        /* Memperbaiki posisi teks h1 agar bertumpuk pas di tengah */
+        .content h1{
+            font-family:'Lucida Handwriting','Segoe Script','Brush Script MT',cursive;
+            font-size:5rem; font-weight:900; color:#fff; 
+            text-shadow:0 0 15px #ff1493,0 0 30px #ff007f,0 0 45px #ff1493;
+            letter-spacing:6px; opacity:0; position:absolute; 
+            width:100%; display:none; line-height: 1.2;
+        }
+        
+        .content h1.active{
+            display:block; 
+            animation:zoomInEffect .5s cubic-bezier(.34,1.56,.64,1) forwards;
+        }
+        
+        @keyframes zoomInEffect{
+            0%{opacity:0; transform: scale(.3)}
+            100%{opacity:1; transform: scale(1)}
+        }
+        
+        /* Optimasi Tampilan HP agar tidak patah atau miring */
+        @media (max-width:768px){
+            .content h1{font-size:3rem; letter-spacing:4px;}
+        }
+        @media (max-width:480px){
+            .content h1{font-size:2rem; letter-spacing:2px;}
+        }
     </style>
 </head>
 <body>
 
+    <!-- Tombol Masuk Layar Penuh -->
+    <div class="welcome-screen" id="welcomeScreen">
+        <button class="start-btn" onclick="startSurprise()">Buka Kejutan</button>
+    </div>
+
     <div class="content">
-        <h1 id="text0" class="active">1</h1> <h1 id="text1">2</h1> <h1 id="text2">3</h1>
-        <h1 id="text3">HAPPY BIRTHDAY</h1> <h1 id="text4">TO</h1>
-        <h1 id="text5">NIA OLIFFIA ANNANTA</h1>
+        <h1 id="text0">1</h1> 
+        <h1 id="text1">2</h1> 
+        <h1 id="text2">3</h1>
+        <h1 id="text3">HAPPY BIRTHDAY</h1> 
+        <h1 id="text4">TO</h1>
+        <h1 id="text5">Nia Oliffia Annanta &hearts;</h1>
     </div>
 
     <div class="canvas-container"> <canvas id="BirthdayRain"></canvas> </div>
-
     <script>
-        let currentTextIndex=0, totalTexts=6, isFinalNameActive=false;
-        const getTimingDuration=(i)=> (i<=2)?2500:2000;
+        let currentTextIndex=0,totalTexts=6,isFinalNameActive=false;
+        // Mengatur jeda waktu tampil teks (1,2,3 tampil 2.5 detik, teks lainnya 2 detik)
+        const getTimingDuration=i=>(i<=2)?2500:2000;
 
+        // Fungsi yang berjalan otomatis saat tombol "Buka Kejutan" diklik
+        const startSurprise = () => {
+            const screen = document.getElementById('welcomeScreen');
+            screen.style.opacity = '0';
+            
+            // Menghilangkan screen pembuka secara bersih setelah animasi pudar selesai
+            setTimeout(() => screen.style.display = 'none', 500);
+
+            // Perintah untuk memaksa browser masuk ke mode Fullscreen di berbagai jenis perangkat/browser
+            const docElm = document.documentElement;
+            if (docElm.requestFullscreen) { docElm.requestFullscreen(); }
+            else if (docElm.mozRequestFullScreen) { docElm.mozRequestFullScreen(); }
+            else if (docElm.webkitRequestFullscreen) { docElm.webkitRequestFullscreen(); }
+            else if (docElm.msRequestFullscreen) { docElm.msRequestFullscreen(); }
+
+            // Memunculkan angka pertama "1" dan memulai rangkaian hitung mundur
+            document.getElementById(`text${currentTextIndex}`).classList.add('active');
+            setTimeout(changeText, getTimingDuration(0));
+        };
+
+        // Fungsi untuk mengganti teks secara berantai
         const changeText=()=>{
-            const cur=document.getElementById(`text${currentTextIndex}`); if(cur)cur.classList.remove('active');
+            const cur=document.getElementById(`text${currentTextIndex}`);
+            if(cur)cur.classList.remove('active');
             currentTextIndex++;
+            
             if(currentTextIndex<totalTexts){
-                const nxt=document.getElementById(`text${currentTextIndex}`); if(nxt)nxt.classList.add('active');
-                if(currentTextIndex==5) {
+                const nxt=document.getElementById(`text${currentTextIndex}`);
+                if(nxt)nxt.classList.add('active');
+                
+                // Ketika teks mencapai simbol Hati (♥)
+                if(currentTextIndex==5){
                     isFinalNameActive=true;
+                    // Kembang api besar langsung meluncur serentak di belakang simbol Hati
                     triggerSpecialIntroFireworks(); 
                 }
-                setTimeout(changeText,getTimingDuration(currentTextIndex));
+                setTimeout(changeText,getTimingDuration(currentTextIndex))
             }else{
-                const fin=document.getElementById(`text${totalTexts-1}`); if(fin)fin.classList.add('active');
+                const fin=document.getElementById(`text${totalTexts-1}`);
+                if(fin)fin.classList.add('active')
             }
         };
-        setTimeout(changeText,getTimingDuration(0));
-
-        // BACKROUND SYSTEM (LOVE WATERFALL, STARS & FIREWORKS)
-        const canvas=document.getElementById('BirthdayRain'), ctx=canvas.getContext('2d');
+        const canvas=document.getElementById('BirthdayRain'),ctx=canvas.getContext('2d');
         const pinkColors=['#ff1493','#ff007f','#ff66aa'];
+        const fireworkColors=['#ffd700','#ffaa00','#ffcc00'];
+        const bigFireworkColor='#b026ff';
+        let fontSize=16,spacingX=-6,spacingY=38,columnWidth,columns,columnsData=[],stars=[],fireworks=[],particles=[];
         
-        // Warna kembang api kecil berkala (Emas berkilau)
-        const fireworkColors=['#ffd700','#ffaa00','#ffcc00']; 
+        // Mengatur percikan ledakan kembang api
+        class Part{constructor(x,y,c,isBig=false){this.x=x;this.y=y;this.c=c;this.isBig=isBig;this.r=isBig?(Math.random()*4.5+3.5):(Math.random()*2+1);const a=Math.random()*Math.PI*2;const s=isBig?(Math.random()*6+4):(Math.random()*3.5+1);this.vx=Math.cos(a)*s;this.vy=Math.sin(a)*s;this.alpha=1;this.d=isBig?(Math.random()*0.004+0.005):(Math.random()*0.008+0.008);this.twinkleSpeed=Math.random()*0.4+0.2;this.twinklePhase=Math.random()*Math.PI}draw(){ctx.save();let currentAlpha=this.alpha;if(this.alpha<0.5){currentAlpha=this.alpha*(Math.sin(Date.now()*this.twinkleSpeed+this.twinklePhase)*0.5+0.5)}ctx.globalAlpha=Math.max(0,currentAlpha);ctx.shadowColor=this.c;ctx.shadowBlur=this.isBig?18:this.r*2.5;ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fillStyle=this.c;ctx.fill();ctx.restore()}update(){this.x+=this.vx;this.y+=this.vy;this.vy+=this.isBig?0.03:0.035;this.alpha-=this.d}}
         
-        // Kunci warna Ungu Violet khusus untuk letusan kembang api besar pembuka
-        const bigFireworkColor = '#b026ff'; 
+        // Mengatur luncuran kembang api ke atas layar
+        class Fwork{constructor(x=null,targetY=null,isBig=false){this.x=x!==null?x:Math.random()*window.innerWidth;this.y=window.innerHeight;this.ty=targetY!==null?targetY:Math.random()*(window.innerHeight*0.3)+window.innerHeight*0.15;this.c=isBig?bigFireworkColor:fireworkColors[Math.floor(Math.random()*fireworkColors.length)];this.s=isBig?12:Math.random()*3+6;this.alive=true;this.isBig=isBig}draw(){ctx.save();ctx.shadowColor=this.c;ctx.shadowBlur=this.isBig?15:5;ctx.beginPath();ctx.arc(this.x,this.y,this.isBig?5:2,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.restore()}update(){this.y-=this.s;if(this.y<=this.ty){this.alive=false;const amt=this.isBig?150:30;for(let i=0;i<amt;i++)particles.push(new Part(this.x,this.y,this.c,this.isBig))}}}
         
-        let fontSize=16, spacingX=-6, spacingY=38, columnWidth, columns, columnsData=[], stars=[], fireworks=[], particles=[];
-
-        class Part{
-            constructor(x,y,c,isBig=false){
-                this.x=x;this.y=y;this.c=c;this.isBig=isBig;
-                // Ukuran partikel kembang api besar dibuat lebih gemuk dan tebal
-                this.r=isBig ? (Math.random()*4.5 + 3.5) : (Math.random()*2 + 1);
-                const a=Math.random()*Math.PI*2;
-                const s=isBig ? (Math.random()*6 + 4) : (Math.random()*3.5 + 1);
-                this.vx=Math.cos(a)*s;this.vy=Math.sin(a)*s;this.alpha=1;
-                this.d=isBig ? (Math.random()*0.004 + 0.005) : (Math.random()*0.008 + 0.008);
-                this.twinkleSpeed = Math.random() * 0.4 + 0.2;
-                this.twinklePhase = Math.random() * Math.PI;
-            }
-            draw(){ 
-                ctx.save();
-                let currentAlpha = this.alpha;
-                if (this.alpha < 0.5) {
-                    currentAlpha = this.alpha * (Math.sin(Date.now() * this.twinkleSpeed + this.twinklePhase) * 0.5 + 0.5);
-                }
-                
-                ctx.globalAlpha = Math.max(0, currentAlpha);
-                ctx.shadowColor = this.c;
-                
-                // PERBAIKAN: Jika kembang api besar, radius pendaran neon glow dinaikkan tebal (18px)
-                ctx.shadowBlur = this.isBig ? 18 : this.r * 2.5;
-                
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
-                ctx.fillStyle = this.c;
-                ctx.fill();
-                ctx.restore(); 
-            }
-            update(){ 
-                this.x+=this.vx;this.y+=this.vy;
-                // Gravitasi kembang api besar disesuaikan agar jatuhnya melayang turun berhamburan anggun
-                this.vy+=this.isBig ? 0.03 : 0.035; 
-                this.alpha-=this.d; 
-            }
-        }
-        class Fwork{
-            constructor(x=null, targetY=null, isBig=false){
-                this.x = x !== null ? x : Math.random()*window.innerWidth;
-                this.y = window.innerHeight;
-                this.ty = targetY !== null ? targetY : Math.random()*(window.innerHeight*0.3)+window.innerHeight*0.15;
-                // Jika disetel besar (isBig), gunakan warna ungu violet murni. Jika kecil, gunakan warna emas berkala
-                this.c = isBig ? bigFireworkColor : fireworkColors[Math.floor(Math.random()*fireworkColors.length)];
-                this.s = Math.random()*3+6;this.alive=true;
-                this.isBig = isBig;
-            }
-            draw(){ ctx.save();ctx.shadowColor=this.c;ctx.shadowBlur=this.isBig ? 12 : 5;ctx.beginPath();ctx.arc(this.x,this.y,this.isBig ? 5 : 2,0,Math.PI*2);ctx.fillStyle='#ffffff';ctx.fill();ctx.restore(); }
-            update(){ this.y-=this.s;if(this.y<=this.ty){this.alive=false; const amt = this.isBig ? 110 : 30; for(let i=0;i<amt;i++)particles.push(new Part(this.x,this.y,this.c,this.isBig));} }
-        }
-
-        const triggerSpecialIntroFireworks = () => {
-            const w = window.innerWidth;
-            const h = window.innerHeight;
-            
-            // 5 Kembang api kecil (emas) mengelilingi nama Nia
-            fireworks.push(new Fwork(w * 0.2, h * 0.3));
-            fireworks.push(new Fwork(w * 0.4, h * 0.25));
-            fireworks.push(new Fwork(w * 0.6, h * 0.25));
-            fireworks.push(new Fwork(w * 0.8, h * 0.3));
-            fireworks.push(new Fwork(w * 0.5, h * 0.2)); 
-
-            // 1 Kembang api raksasa UNGU VIOLET MELEDAK GLOWING di bawah teks nama Nia
-            setTimeout(() => {
-                fireworks.push(new Fwork(w * 0.5, h * 0.68, true));
-            }, 300); 
+        // Pemicu kembang api serentak saat simbol hati muncul
+        const triggerSpecialIntroFireworks=()=>{
+            const w=window.innerWidth,h=window.innerHeight;
+            fireworks.push(new Fwork(w*0.2,h*0.3));
+            fireworks.push(new Fwork(w*0.4,h*0.25));
+            fireworks.push(new Fwork(w*0.6,h*0.25));
+            fireworks.push(new Fwork(w*0.8,h*0.3));
+            // Kembang api besar tepat mengarah ke tengah layar (X: 50%, Y: 50%) tempat teks ♥ berada
+            fireworks.push(new Fwork(w*0.5,h*0.5,true));
         };
 
-        const initCanvas=()=>{
-            const scale=window.devicePixelRatio||1; canvas.width=window.innerWidth*scale; canvas.height=window.innerHeight*scale; ctx.scale(scale,scale);
-            if(window.innerWidth<480){ fontSize=14; spacingX=-6; spacingY=32; }
-            columnWidth=fontSize+spacingX; columns=Math.floor(window.innerWidth/columnWidth)+4;
-            
-            columnsData=[];
-            for(let x=0;x<columns;x++){
-                let q=[]; let c=pinkColors[Math.floor(Math.random()*3)];
-                for(let j=0;j<14;j++)q.push({ opacity:1-(j*0.07) });
-                columnsData[x]={ y:Math.random()*-60-5, speed:0.12+Math.random()*0.08, color:c, pattern:q };
-            }
-            stars=[]; const ts=window.innerWidth<480?25:55;
-            for(let i=0;i<ts;i++)stars.push({ x:Math.random()*window.innerWidth, y:Math.random()*window.innerHeight, size:Math.random()*1.3+0.4, alpha:Math.random(), speed:Math.random()*0.04+0.01 });
-        };
+        // Inisialisasi ukuran kanvas grafis agar pas di HP maupun laptop
+        const initCanvas=()=>{const scale=window.devicePixelRatio||1;canvas.width=window.innerWidth*scale;canvas.height=window.innerHeight*scale;ctx.scale(scale,scale);if(window.innerWidth<480){fontSize=14;spacingX=-6;spacingY=32}columnWidth=fontSize+spacingX;columns=Math.floor(window.innerWidth/columnWidth)+4;columnsData=[];for(let x=0;x<columns;x++){let q=[];let c=pinkColors[Math.floor(Math.random()*3)];for(let j=0;j<14;j++)q.push({opacity:1-j*0.07});columnsData[x]={y:Math.random()*-60-5,speed:0.12+Math.random()*0.08,color:c,pattern:q}}stars=[];const ts=window.innerWidth<480?25:55;for(let i=0;i<ts;i++)stars.push({x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,size:Math.random()*1.3+0.4,alpha:Math.random(),speed:Math.random()*0.04+0.01})};
         initCanvas();
-
-        const draw=()=>{
-            ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
-            // Bintang Kelip
-            for(let i=0;i<stars.length;i++){
-                let s=stars[i]; s.alpha+=s.speed; if(s.alpha>1||s.alpha<0.1)s.speed=-s.speed;
-                ctx.save(); ctx.globalAlpha=Math.max(0.1,s.alpha); ctx.beginPath(); ctx.arc(s.x,s.y,s.size,0,Math.PI*2); ctx.fillStyle='#ffffff'; ctx.fill(); ctx.restore();
-            }
-            // Logika Pergerakan Kembang Api
-            if(isFinalNameActive){
-                if(Math.random()<0.02 && fireworks.length<3)fireworks.push(new Fwork());
-                
-                for(let i=fireworks.length-1;i>=0;i--){ fireworks[i].update(); fireworks[i].draw(); if(!fireworks[i].alive)fireworks.splice(i,1); }
-                for(let i=particles.length-1;i>=0;i--){ particles[i].update(); particles[i].draw(); if(particles[i].alpha <= 0)particles.splice(i,1); }
-            }
-            // Hujan Love Matriks Pink Murni
-            ctx.font="bold "+fontSize+"px Arial, sans-serif"; ctx.textBaseline='top';
-            for(let i=0;i<columnsData.length;i++){
-                let col=columnsData[i], posX=i*columnWidth; ctx.shadowColor=col.color; ctx.shadowBlur=6;
-                for(let j=0;j<col.pattern.length;j++){
-                    let posY=(col.y-j)*spacingY;
-                    if(posY>-fontSize&&posY<window.innerHeight){ ctx.globalAlpha=Math.max(0.12,col.pattern[j].opacity); ctx.fillStyle=col.color; ctx.fillText('♥',posX,posY); }
-                }
-                ctx.shadowBlur=0; ctx.globalAlpha=1.0; col.y+=col.speed;
-                if((col.y-col.pattern.length)*spacingY>window.innerHeight){ col.y=Math.random()*-40-2; col.speed=0.12+Math.random()*0.08; col.color=pinkColors[Math.floor(Math.random()*3)]; }
-            }
-        };
+        
+        // Fungsi menggambar seluruh animasi di layar secara realtime
+        const draw=()=>{ctx.clearRect(0,0,window.innerWidth,window.innerHeight);for(let i=0;i<stars.length;i++){let s=stars[i];s.alpha+=s.speed;if(s.alpha>1||s.alpha<0.1)s.speed=-s.speed;ctx.save();ctx.globalAlpha=Math.max(0.1,s.alpha);ctx.beginPath();ctx.arc(s.x,s.y,s.size,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.restore()}if(isFinalNameActive){if(Math.random()<0.02&&fireworks.length<3)fireworks.push(new Fwork());for(let i=fireworks.length-1;i>=0;i--){fireworks[i].update();fireworks[i].draw();if(!fireworks[i].alive)fireworks.splice(i,1)}for(let i=particles.length-1;i>=0;i--){particles[i].update();particles[i].draw();if(particles[i].alpha<=0)particles.splice(i,1)}}ctx.font='bold '+fontSize+'px Arial, sans-serif';ctx.textBaseline='top';for(let i=0;i<columnsData.length;i++){let col=columnsData[i],posX=i*columnWidth;ctx.shadowColor=col.color;ctx.shadowBlur=6;for(let j=0;j<col.pattern.length;j++){let posY=(col.y-j)*spacingY;if(posY>-fontSize&&posY<window.innerHeight){ctx.globalAlpha=Math.max(0.12,col.pattern[j].opacity);ctx.fillStyle=col.color;ctx.fillText('♥',posX,posY)}}ctx.shadowBlur=0;ctx.globalAlpha=1;col.y+=col.speed;if((col.y-col.pattern.length)*spacingY>window.innerHeight){col.y=Math.random()*-40-2;col.speed=0.12+Math.random()*0.08;col.color=pinkColors[Math.floor(Math.random()*3)]}}};
         setInterval(draw,35);
-        window.addEventListener('resize',()=>{setTimeout(initCanvas,150);});
+        window.addEventListener('resize',()=>{setTimeout(initCanvas,150)});
     </script>
+</body>
+</html>
